@@ -11,7 +11,10 @@
     "email": "amberonno@gmail.com"
   },
   "keywords": [
-    "trade-static"
+    "eg-steps",
+    "steps",
+    "eagle-ui"
+
   ],
   "dependencies": {
     "extend": "^3.0.0",
