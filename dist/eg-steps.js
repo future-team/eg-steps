@@ -65,15 +65,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.__esModule = true;
 	
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { 'default': obj };
-	}
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _OverlayJs = __webpack_require__(2);
+	var _StepsJs = __webpack_require__(2);
 	
-	var _OverlayJs2 = _interopRequireDefault(_OverlayJs);
+	var _StepsJs2 = _interopRequireDefault(_StepsJs);
 	
-	exports.Overlay = _OverlayJs2['default'];
+	exports.Steps = _StepsJs2['default'];
 
 /***/ },
 /* 2 */
@@ -87,31 +85,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.__esModule = true;
 	
-	var _createClass = (function () {
-	    function defineProperties(target, props) {
-	        for (var i = 0; i < props.length; i++) {
-	            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-	        }
-	    }return function (Constructor, protoProps, staticProps) {
-	        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-	    };
-	})();
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
-	function _interopRequireDefault(obj) {
-	    return obj && obj.__esModule ? obj : { 'default': obj };
-	}
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	function _classCallCheck(instance, Constructor) {
-	    if (!(instance instanceof Constructor)) {
-	        throw new TypeError('Cannot call a class as a function');
-	    }
-	}
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	function _inherits(subClass, superClass) {
-	    if (typeof superClass !== 'function' && superClass !== null) {
-	        throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
-	    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-	}
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var _react = __webpack_require__(3);
 	
@@ -123,59 +103,103 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	__webpack_require__(5);
 	
-	var Overlay = (function (_Component) {
-	    _inherits(Overlay, _Component);
+	var Steps = (function (_Component) {
+	    _inherits(Steps, _Component);
 	
-	    function Overlay() {
-	        _classCallCheck(this, Overlay);
+	    function Steps() {
+	        _classCallCheck(this, Steps);
 	
 	        _Component.apply(this, arguments);
 	    }
 	
-	    Overlay.prototype.renderOverlay = function renderOverlay() {
+	    Steps.prototype.renderSteps = function renderSteps() {
 	        var _props = this.props;
-	        var overlayContent = _props.overlayContent;
-	        var overlayList = _props.overlayList;
-	
-	        if (overlayContent) {
-	            return overlayContent;
+	        var currentStep = _props.currentStep;
+	        var list = _props.list;
+	        var _this = this;
+	        if (currentStep > list.length) {
+	            currentStep = list.length;
 	        }
-	        if (overlayList && overlayList.length) {
-	            return overlayList.map(function (item) {
-	                return _react2['default'].createElement('span', { className: 'eg-overlay-item', onClick: item.callback }, item.content);
-	            });
-	        }
+	        return list.map(function (str, index) {
+	            //从1开始计数
+	            index += 1;
+	            var gap = index - currentStep;
+	            return _react2['default'].createElement(
+	                'span',
+	                {
+	                    onClick: function () {
+	                        if (_this.props.readOnly) {
+	                            return;
+	                        }
+	                        _this.props.clickCallback(str, index);
+	                    },
+	                    className: 'step-item ' + (gap > 0 ? 'not-start' : gap == 0 ? 'active' : 'done') },
+	                _react2['default'].createElement('i', null),
+	                _react2['default'].createElement(
+	                    'span',
+	                    { className: 'item-content' },
+	                    str
+	                )
+	            );
+	        });
 	    };
 	
-	    Overlay.prototype.render = function render() {
-	        return _react2['default'].createElement('a', { className: 'eg-overlay-container' }, this.props.children, _react2['default'].createElement('div', { className: 'eg-overlay ' + this.props.position + ' ' + this.props.show }, this.renderOverlay()));
+	    Steps.prototype.componentDidMount = function componentDidMount() {
+	        this.calculatePosition();
+	        window.onresize = this.calculatePosition.bind(this);
 	    };
 	
-	    _createClass(Overlay, null, [{
+	    Steps.prototype.componentDidUpdate = function componentDidUpdate() {
+	        this.calculatePosition();
+	    };
+	
+	    Steps.prototype.calculatePosition = function calculatePosition() {
+	        var stepContainer = this.refs.stepsContainer,
+	            containerWidth = stepContainer.clientWidth,
+	            stepItems = stepContainer.querySelectorAll('.step-item');
+	        var gap = containerWidth / (stepItems.length - 1).toFixed();
+	        stepItems.forEach(function (item, index) {
+	            item.style.left = index * gap - item.clientWidth / 2 + 'px';
+	        });
+	    };
+	
+	    Steps.prototype.render = function render() {
+	        return _react2['default'].createElement(
+	            'div',
+	            { ref: 'stepsContainer', className: 'eg-steps-container' + (this.props.readOnly ? ' read-only' : '') },
+	            this.renderSteps(),
+	            _react2['default'].createElement('div', { className: 'hr' })
+	        );
+	    };
+	
+	    _createClass(Steps, null, [{
 	        key: 'propTypes',
 	        value: {
-	            //overlay的位置，可选top、bottom、left、right、top-left、top-right、bottom-left、bottom-right。默认bottom-right
-	            position: _react.PropTypes.string,
-	            //何时显示遮罩块，可选always、hover（always会一直显示，hover只有在鼠标移动到的时候会显示）默认always
-	            show: _react.PropTypes.string,
-	            //overlay的内容
-	            overlayContent: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.element])
+	            //是否为只读模式（只读模式不会触发点击回调），默认为false
+	            readOnly: _react.PropTypes.bool,
+	            //steps内容数组，把每一步的文案放入数组中作为list的值
+	            list: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.string),
+	            //当前处于第几步，默认为0，也就是说所有的步骤都没有开始，如果到第一步的话将currentStep设置为1即可，注意currentStep不可以超过list数组长度
+	            currentStep: _react2['default'].PropTypes.number,
+	            clickCallback: _react2['default'].PropTypes.func
 	
 	        },
 	        enumerable: true
 	    }, {
 	        key: 'defaultProps',
 	        value: {
-	            position: 'bottom-right',
-	            show: 'always'
+	            readOnly: false,
+	            list: [],
+	            currentStep: 0,
+	            clickCallback: function clickCallback() {}
 	        },
 	        enumerable: true
 	    }]);
 	
-	    return Overlay;
+	    return Steps;
 	})(_react.Component);
 	
-	exports['default'] = Overlay;
+	exports['default'] = Steps;
 	module.exports = exports['default'];
 
 /***/ },
@@ -254,8 +278,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./Overlay.less", function() {
-				var newContent = require("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./Overlay.less");
+			module.hot.accept("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./Steps.less", function() {
+				var newContent = require("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./Steps.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -273,7 +297,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	// module
-	exports.push([module.id, ".eg-overlay-container {\n  display: inline-block;\n  position: relative;\n  font-size: 0;\n}\n.eg-overlay-container:hover .eg-overlay {\n  opacity: 1;\n}\n.eg-overlay-container .eg-overlay {\n  position: absolute;\n  background: rgba(0, 0, 0, 0.6);\n  z-index: 200;\n  font-size: 12px;\n  opacity: 0;\n  padding: 5px 10px;\n  transition-duration: 500ms;\n  transform-property: opacity;\n}\n.eg-overlay-container .eg-overlay .eg-overlay-item {\n  cursor: pointer;\n  color: #fff;\n  display: inline-block;\n}\n.eg-overlay-container .eg-overlay .eg-overlay-item:not(:last-child) {\n  margin-right: 7px;\n}\n.eg-overlay-container .eg-overlay.always {\n  opacity: 1;\n}\n.eg-overlay-container .eg-overlay.top {\n  top: 0;\n  left: 0;\n  right: 0;\n  text-align: center;\n}\n.eg-overlay-container .eg-overlay.top-left {\n  top: 0;\n  left: 0;\n}\n.eg-overlay-container .eg-overlay.top-right {\n  top: 0;\n  right: 0;\n}\n.eg-overlay-container .eg-overlay.bottom-left {\n  bottom: 0;\n  left: 0;\n}\n.eg-overlay-container .eg-overlay.bottom-right {\n  bottom: 0;\n  right: 0;\n}\n.eg-overlay-container .eg-overlay.bottom {\n  bottom: 0;\n  left: 0;\n  right: 0;\n  text-align: center;\n}\n.eg-overlay-container .eg-overlay.left {\n  left: 0;\n  top: 0;\n  bottom: 0;\n}\n.eg-overlay-container .eg-overlay.right {\n  right: 0;\n  top: 0;\n  bottom: 0;\n}\n", ""]);
+	exports.push([module.id, ".eg-steps-container {\n  position: relative;\n  height: 100px;\n}\n.eg-steps-container .hr {\n  width: 100%;\n  border-top: 1px solid #333;\n  position: absolute;\n  z-index: 1;\n}\n.eg-steps-container.read-only .step-item {\n  cursor: default;\n}\n.eg-steps-container .step-item {\n  z-index: 2;\n  top: 10px;\n  cursor: pointer;\n  position: absolute;\n  white-space: nowrap;\n  font-size: 12px;\n  color: #aaa;\n}\n.eg-steps-container .step-item i {\n  display: inline-block;\n  width: 12px;\n  height: 12px;\n  border-radius: 50%;\n  background: #ff6633;\n  position: absolute;\n  top: -15px;\n  left: 50%;\n  margin-left: -6px;\n  box-sizing: border-box;\n}\n.eg-steps-container .step-item.active,\n.eg-steps-container .step-item.done {\n  color: #ff6633;\n}\n.eg-steps-container .step-item.not-start i {\n  background: #d8d8d8;\n  border: 1px solid #979797;\n}\n.eg-steps-container .step-item.done i {\n  background: #f6dcd3;\n  border: 1px solid #ff6633;\n}\n.eg-steps-container .step-item.done i::after {\n  content: '';\n  display: inline-block;\n  width: 6px;\n  height: 3px;\n  border-bottom: 1px solid #666;\n  border-left: 1px solid #666;\n  border-color: #ff6633;\n  -webkit-transform: rotate(-45deg);\n  -moz-transform: rotate(-45deg);\n  -ms-transform: rotate(-45deg);\n  -o-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n  position: absolute;\n  top: 2px;\n  left: 2px;\n}\n", ""]);
 	
 	// exports
 

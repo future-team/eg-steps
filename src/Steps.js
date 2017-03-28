@@ -14,6 +14,7 @@ export default class Steps extends Component{
         list:React.PropTypes.arrayOf(React.PropTypes.string),
         //当前处于第几步，默认为0，也就是说所有的步骤都没有开始，如果到第一步的话将currentStep设置为1即可，注意currentStep不可以超过list数组长度
         currentStep:React.PropTypes.number,
+        //点击每一步的回调，function(str,index){} str为步骤名称，index为第几步（从1开始计数）
         clickCallback:React.PropTypes.func
 
     };
